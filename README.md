@@ -30,6 +30,12 @@ pushBox/
 
 地图是 CSV 格式，每行逗号分隔的数字代表不同格子类型（墙、地面、箱子、目标点）。
 
+运行效果：
+
+<p align="center">
+  <img src="./ImagesforShow/推箱子.png" width="400">
+</p>
+
 ## 飞机大战（PlaneFighting）
 
 B 站老师那版只有基础功能，没有音效，爆炸也没有动画。我在此基础上补充了：
@@ -74,6 +80,15 @@ PlaneFighting/
 
 依赖 Qt6 的 `Widgets` 和 `Multimedia`（音效需要）。
 
+运行效果：
+
+<table>
+  <tr>
+    <td align="center"><img src="./ImagesforShow/飞机大战1.png" width="400"></td>
+    <td align="center"><img src="./ImagesforShow/飞机大战2.png" width="400"></td>
+  </tr>
+</table>
+
 ## 斗地主（landlord）
 
 最复杂的一个。没有教程参考，自己查文档实现的。C/S 架构，客户端和服务端是两个独立工程：
@@ -85,6 +100,21 @@ landlord/
 ```
 
 用 `QTcpSocket` / `QTcpServer` 走 TCP。
+
+客户端和服务端界面：
+
+<table>
+  <tr>
+    <td align="center"><img src="./ImagesforShow/斗地主客户端.png" width="400"></td>
+    <td align="center"><img src="./ImagesforShow/斗地主服务端.png" width="400"></td>
+  </tr>
+</table>
+
+游戏中的界面（实际运行时信息会更全）：
+
+<p align="center">
+  <img src="./ImagesforShow/斗地主界面示意（游戏前画面，实际会信息健全一些）.png" width="500">
+</p>
 
 ### 协议设计
 
