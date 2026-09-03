@@ -32,7 +32,7 @@ pushBox/
 
 运行效果：
 
-![推箱子运行效果](ImagesforShow/推箱子.png)
+<img src="ImagesforShow/推箱子.png" width="500">
 
 ## 飞机大战（PlaneFighting）
 
@@ -80,9 +80,9 @@ PlaneFighting/
 
 运行效果：
 
-![飞机大战运行效果1](ImagesforShow/飞机大战1.png)
+<img src="ImagesforShow/飞机大战1.png" width="500">
 
-![飞机大战运行效果2](ImagesforShow/飞机大战2.png)
+<img src="ImagesforShow/飞机大战2.png" width="500">
 
 ## 斗地主（landlord）
 
@@ -98,13 +98,13 @@ landlord/
 
 客户端和服务端界面：
 
-![斗地主客户端](ImagesforShow/斗地主客户端.png)
+<img src="ImagesforShow/斗地主客户端.png" width="500">
 
-![斗地主服务端](ImagesforShow/斗地主服务端.png)
+<img src="ImagesforShow/斗地主服务端.png" width="500">
 
 游戏中的界面（实际运行时信息会更全）：
 
-![斗地主游戏界面示意](ImagesforShow/斗地主界面示意%EF%BC%88游戏前画面%EF%BC%8C实际会信息健全一些%EF%BC%89.png)
+<img src="ImagesforShow/斗地主界面示意%EF%BC%88游戏前画面%EF%BC%8C实际会信息健全一些%EF%BC%89.png" width="600">
 
 ### 协议设计
 
