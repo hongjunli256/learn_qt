@@ -104,7 +104,7 @@ landlord/
 
 游戏中的界面（实际运行时信息会更全）：
 
-<img src="ImagesforShow/斗地主界面示意%EF%BC%88游戏前画面%EF%BC%8C实际会信息健全一些%EF%BC%89.png" width="600">
+<img src="ImagesforShow/斗地主界面示意%EF%BC%88游戏前画面%EF%BC%8C实际会信息健全一些%EF%BC%89.png" width="300">
 
 ### 协议设计
 
