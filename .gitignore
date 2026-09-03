@@ -1,0 +1,27 @@
+# 编辑器/IDE 配置
+.vs/
+.vscode/
+
+# 编译输出目录
+Debug/
+Release/
+x64/
+obj/
+build/
+output/
+
+# 编译生成文件
+*.exe
+*.obj
+*.pdb
+*.ilk
+*.log
+
+# 项目用户配置
+*.user
+
+# 渲染输出图片
+*.tga
+
+# 其他
+imgui.ini

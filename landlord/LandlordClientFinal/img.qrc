@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Card.png</file>
+        <file>1s.png</file>
+        <file>2s.png</file>
+        <file>3s.png</file>
+        <file>4s.png</file>
+    </qresource>
+</RCC>
