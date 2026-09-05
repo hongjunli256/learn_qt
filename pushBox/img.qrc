@@ -3,4 +3,26 @@
         <file>src/gameMap.png</file>
         <file>src/background.jpg</file>
     </qresource>
+    <qresource prefix="/map">
+        <file>maplevel/map1.txt</file>
+        <file>maplevel/map2.txt</file>
+        <file>maplevel/map3.txt</file>
+        <file>maplevel/map4.txt</file>
+        <file>maplevel/map5.txt</file>
+        <file>maplevel/map6.txt</file>
+        <file>maplevel/map7.txt</file>
+        <file>maplevel/map8.txt</file>
+        <file>maplevel/map9.txt</file>
+        <file>maplevel/map10.txt</file>
+        <file>maplevel/playerPos1.txt</file>
+        <file>maplevel/playerPos2.txt</file>
+        <file>maplevel/playerPos3.txt</file>
+        <file>maplevel/playerPos4.txt</file>
+        <file>maplevel/playerPos5.txt</file>
+        <file>maplevel/playerPos6.txt</file>
+        <file>maplevel/playerPos7.txt</file>
+        <file>maplevel/playerPos8.txt</file>
+        <file>maplevel/playerPos9.txt</file>
+        <file>maplevel/playerPos10.txt</file>
+    </qresource>
 </RCC>

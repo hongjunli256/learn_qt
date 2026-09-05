@@ -20,8 +20,8 @@ public:
     ~Widget();
     void paintEvent(QPaintEvent *event);
     void keyPressEvent(QKeyEvent *event);
-    QPainter*mPainter=nullptr;
-    GameMap *gm=nullptr;
+	//QPainter*mPainter=nullptr;
+	GameMap *gm=nullptr;
     Player*p=nullptr;
     QLabel *label=nullptr;
     QLabel *levelLabel=nullptr;

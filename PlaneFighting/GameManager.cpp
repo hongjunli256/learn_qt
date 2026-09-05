@@ -53,9 +53,9 @@ GameManager::GameManager(QWidget *parent)
 
         this->mMediaShoot.setAudioOutput(this->mAudioOutputSound);
         this->mMediaShoot.stop();
-        this->mMediaShoot.setSource(QUrl("./sound/bullet.wav"));
-        // 播放前检查媒体状态
-        this->mMediaShoot.play();
+		this->mMediaShoot.setSource(QUrl("qrc:/snd/src/sound/button.wav"));
+		// 播放前检查媒体状态
+		this->mMediaShoot.play();
         for(Enemy*em:std::as_const(this->gameItemPool.mEnemyList))
         {
             if(em->y()>0||em->dead!=true)
@@ -99,8 +99,8 @@ GameManager::GameManager(QWidget *parent)
         //背景音乐启动
         this->mMediaBG.setAudioOutput(this->mAudioOutputMusic);
         this->mMediaBG.stop();
-        this->mMediaBG.setSource(QUrl("./sound/game_music.ogg"));
-        // 播放前检查媒体状态
+		this->mMediaBG.setSource(QUrl("qrc:/snd/src/sound/game_music.ogg"));
+		// 播放前检查媒体状态
         this->mMediaBG.play();
 
     });

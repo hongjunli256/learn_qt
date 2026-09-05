@@ -12,9 +12,8 @@ void GameMap:: drawBackground(QPainter*painter)
 bool GameMap:: initMap(int level)
 {
     QString mapFileName="map";
-    QFile file("./maplevel/"+mapFileName+QString::number(level)+".txt");
-
-    if(!file.open(QFile::ReadOnly))
+	QFile file(":/map/maplevel/" + mapFileName + QString::number(level) + ".txt");
+	if(!file.open(QFile::ReadOnly))
     {
         // QMessageBox::information(this,"提示","地图文件不存在");
         this->initFail=true;

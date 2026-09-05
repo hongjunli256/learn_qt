@@ -35,7 +35,6 @@ public:
     int dotStyle=0;
     void releaseMap();
     bool initFail=true;
-signals:
 };
 
 #endif // GAMEMAP_H

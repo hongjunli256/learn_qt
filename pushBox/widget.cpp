@@ -1,13 +1,16 @@
 #include "widget.h"
 #include"publicEnum.h"
+//不用ui，而是使用代码进行绘制，然后写好paintevent,在监听用户操作后进行逻辑处理后调用update()
+//不过倒是很奇怪当时为什么会被教着用一个成员变量来维持这个painter
+//这个项目倒是很不错，用txt存储关卡信息进行映射,现在我重新挪到qrc里面吧
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
 {
     this->resize(1200,750);
-    this->mPainter=new QPainter(this);
+	//this->mPainter=new QPainter(this);
 
-    QPushButton *button1=new QPushButton;
-    //设置按钮归属于这个窗口
+	QPushButton *button1 = new QPushButton;
+	//设置按钮归属于这个窗口
     button1->setParent(this);
     //设置大小
     button1->resize(200,100);
@@ -22,32 +25,20 @@ Widget::Widget(QWidget *parent)
     button1->move(800,100);
 
     QPushButton *button2=new QPushButton;
-    //设置按钮归属于这个窗口
     button2->setParent(this);
-    //设置大小
     button2->resize(200,100);
-    //使按钮显示
     button2->show();
-    //给按钮加上名称
     button2->setText("退出游戏");
-    //设置文字字体
     button2->setFont(font1);
-    //移动到坐标
     button2->move(800,300);
 
 
     QPushButton *button3=new QPushButton;
-    //设置按钮归属于这个窗口
     button3->setParent(this);
-    //设置大小
     button3->resize(200,100);
-    //使按钮显示
     button3->show();
-    //给按钮加上名称
     button3->setText("重新开始");
-    //设置文字字体
     button3->setFont(font1);
-    //移动到坐标
     button3->move(800,500);
 
     this->label=new QLabel(this);
@@ -201,19 +192,18 @@ Widget::~Widget() {}
 void Widget::paintEvent(QPaintEvent *event)
 
 {
-    this->mPainter->begin(this);
+	//this->mPainter->begin(this);
+	QPainter painter(this);
+	this->gm->drawBackground(&painter);
+	if (this->mapNum != 0)
+	{
+		if (!this->gm->initFail)
+			this->gm->drawMap(&painter);
+		if (!this->p->initFail)
+			this->p->drawPlayer(&painter);
+	}
 
-    this->gm->drawBackground(this->mPainter);
-    if(this->mapNum!=0)
-    {
-        if(!this->gm->initFail)
-        this->gm->drawMap(this->mPainter);
-        if(!this->p->initFail)
-        this->p->drawPlayer(this->mPainter);
-    }
-
-
-    this->mPainter->end();
+	painter.end();
 }
 void Widget::keyPressEvent(QKeyEvent *event)
 {

@@ -18,8 +18,6 @@ public:
     int lookForward=Direction::Down;
     bool initPlayer(int level=1);
     bool initFail=true;
-
-signals:
 };
 
 #endif // PLAYER_H

@@ -40,4 +40,19 @@
         <file>src/images/resume_nor.png</file>
         <file>src/images/resume_pressed.png</file>
     </qresource>
+    <qresource prefix="/snd">
+        <file>src/sound/bullet.wav</file>
+        <file>src/sound/button.wav</file>
+        <file>src/sound/enemy1_down.wav</file>
+        <file>src/sound/enemy2_down.wav</file>
+        <file>src/sound/enemy3_down.wav</file>
+        <file>src/sound/enemy3_flying.wav</file>
+        <file>src/sound/game_music.ogg</file>
+        <file>src/sound/get_bomb.wav</file>
+        <file>src/sound/get_bullet.wav</file>
+        <file>src/sound/me_down.wav</file>
+        <file>src/sound/supply.wav</file>
+        <file>src/sound/upgrade.wav</file>
+        <file>src/sound/use_bomb.wav</file>
+    </qresource>
 </RCC>
