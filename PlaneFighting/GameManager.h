@@ -9,14 +9,16 @@
 #include<QKeyEvent>
 #include<QList>
 #include<QSet>
-#include<QPushButton>
-#include<QToolButton>
+
+#include <QLabel>
+#include <QPushButton>
+#include <QToolButton>
+
 #include"Enemy.h"
 #include <QDateTime>
 #include<QMediaPlayer>
 #include<QAudioOutput>
 #include"GameItemPool.h"
-#include<QLabel>
 //元素-在>场景-有>视图
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -45,17 +47,19 @@ public:
     QToolButton mButton_Resume;
     QToolButton mButton_again;
     QToolButton mButton_gameover;
-    QLabel life_Num;
-    QGraphicsPixmapItem life;
+	QLabel highest_score;
+	int score = 0;
 
-    QGraphicsPixmapItem mBackground1;
-    QGraphicsPixmapItem mBackground2;
+	QLabel life_Num;
+	QGraphicsPixmapItem life;
 
+	QGraphicsPixmapItem mBackground1;
+	QGraphicsPixmapItem mBackground2;
 
-    QSet<int>mKeySet;
-    GameItemPool gameItemPool;
+	QSet<int> mKeySet;
+	GameItemPool gameItemPool;
 
-    //定时器
+	//定时器
     void timer_Start();
     void timer_Pause();
     QTimer*timerRollBG;//背景滚动
@@ -86,8 +90,6 @@ public slots:
     void generateEnemy();
     void gameOver();
     void replay();
-
-
 
 private:
     Ui::Widget *ui;

@@ -8,8 +8,7 @@ class GameItem :  public QObject,public QGraphicsPixmapItem
 {
     Q_OBJECT
 public:
-    GameItem();
-
+	GameItem() {};
 };
 
 #endif // GAMEITEM_H

@@ -1,4 +1,5 @@
 #include "Enemy.h"
+//看我等会用多态给几个敌机封装设计
 Enemy::Enemy(int type,QPoint pos)
 {
     this->type=type;
@@ -20,7 +21,7 @@ Enemy::Enemy(int type,QPoint pos)
 }
 Enemy::~Enemy()
 {
-        delete this->mTimerExplosion;
+	delete this->mTimerExplosion;
 }
 void Enemy::EnemyMove()
 {

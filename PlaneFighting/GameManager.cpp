@@ -3,6 +3,12 @@
 #include<QFile>
 #include<QMessageBox>
 #include"GameInitialConfig.h"
+
+//哈哈才发现这是一个单方面打敌机的练习项目
+//看我把它做完整
+//就写多态的敌机，暂停界面写一个分数榜，然后写一个文件里面存储最高分
+//明天再写吧，主要模块：分数，敌机多样化(多态化，还有boss需要定制一下)，看相应的架构需不需要调整吧，现在感觉有点拥挤，要不要单独写一个播放器虽然感觉也没必要，项目的确很小
+//先做前面两个，后面还有一些其他的音效文件，我到时候斟酌一下，明天搞定
 GameManager::GameManager(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::Widget)
@@ -67,7 +73,6 @@ GameManager::GameManager(QWidget *parent)
 
     //子弹移动
     this->timerBulletMove=new QTimer(this);
-    // this->timerBulletMove->start(30);
     connect(this->timerBulletMove,&QTimer::timeout,this,[this](){
         this->Collision();
         for(int i=0;i<this->gameItemPool.mBulletList.size();i++)
@@ -234,7 +239,7 @@ void GameManager::initScene_Fight()    //战斗场景搭建
     this->mButton_Pause.setIconSize(QSize(56,41));//4657
 
     // 核心样式表：完全透明背景，无边框，仅在交互时有轻微反馈
-    this->mButton_Pause.setStyleSheet(R"(
+	this->mButton_Pause.setStyleSheet(R"(
     QToolButton {
         border: none;               /* 去除边框 */
         background: transparent;    /* 透明背景 */
@@ -245,24 +250,24 @@ void GameManager::initScene_Fight()    //战斗场景搭建
 
         image: url(:/img/src/images/pause_pressed.png);
     }
-)");
+	)");
 
-    //生命值显示
-    life.setPixmap(QPixmap(":/img/src/images/life.png"));
-    life.setScale(0.5);
-    life.setPos(0,670);
-    QFont font;
-    font.setFamily("Comic Sans MS"); // 黑体，适配手绘风格的硬朗感
-    font.setPointSize(14);
-    life_Num.setFont(font);
-    life_Num.move(30,670);
-    life_Num.setText("x"+QString::number(1));
-    life_Num.setStyleSheet("background-color: transparent;");
+	//生命值显示
+	life.setPixmap(QPixmap(":/img/src/images/life.png"));
+	life.setScale(0.5);
+	life.setPos(0, 670);
+	QFont font;
+	font.setFamily("Comic Sans MS"); // 黑体，适配手绘风格的硬朗感
+	font.setPointSize(14);
+	life_Num.setFont(font);
+	life_Num.move(30, 670);
+	life_Num.setText("x" + QString::number(1));
+	life_Num.setStyleSheet("background-color: transparent;");
 
-    this->mScene_Fight.addWidget(&this->life_Num);
-    this->mScene_Fight.addWidget(&this->mButton_Pause);
-    this->mScene_Fight.addItem(&this->gameItemPool.mPlane);
-    this->mScene_Fight.addItem(&this->life);
+	this->mScene_Fight.addWidget(&this->life_Num);
+	this->mScene_Fight.addWidget(&this->mButton_Pause);
+	this->mScene_Fight.addItem(&this->gameItemPool.mPlane);
+	this->mScene_Fight.addItem(&this->life);
 }
 
 void GameManager::initScene_Pause()
@@ -276,9 +281,7 @@ void GameManager::initScene_Pause()
     this->mButton_Resume.move(420,0);
     // 图标尺寸建议比按钮小2-4像素，避免边缘被截断
     this->mButton_Resume.setIconSize(QSize(56,41));
-
-    // 核心样式表：完全透明背景，无边框，仅在交互时有轻微反馈
-    this->mButton_Resume.setStyleSheet(R"(
+	this->mButton_Resume.setStyleSheet(R"(
     QToolButton {
         border: none;               /* 去除边框 */
         background: transparent;    /* 透明背景 */
@@ -289,32 +292,43 @@ void GameManager::initScene_Pause()
 
         image: url(:/img/src/images/resume_pressed.png);
     }
-)");
-    this->mButton_again.resize(300,41);
-    this->mButton_again.setStyleSheet(R"(
+	)");
+	this->mScene_Pause.addWidget(&this->mButton_Resume);
+
+	this->mButton_again.resize(300, 41);
+	this->mButton_again.setStyleSheet(R"(
     QToolButton {
         border: none;               /* 去除边框 */
         background: transparent;    /* 透明背景 */
         padding: 0px;               /* 去除内边距 */
     }
-)");
-    this->mButton_again.setIcon(QIcon(":/img/src/images/again.png"));
-    this->mButton_again.move(100,400);
-    this->mButton_again.setIconSize(QSize(300,41));
-    this->mButton_gameover.setStyleSheet(R"(
+	)");
+	this->mButton_again.setIcon(QIcon(":/img/src/images/again.png"));
+	this->mButton_again.move(100, 400);
+	this->mButton_again.setIconSize(QSize(300, 41));
+	this->mScene_Pause.addWidget(&this->mButton_again);
+
+	this->mButton_gameover.setStyleSheet(R"(
     QToolButton {
         border: none;               /* 去除边框 */
         background: transparent;    /* 透明背景 */
         padding: 0px;               /* 去除内边距 */
     }
-)");
-    this->mButton_gameover.setIcon(QIcon(":/img/src/images/gameover.png"));
-    this->mButton_gameover.setIconSize(QSize(300,41));
-    this->mButton_gameover.resize(300,41);
-    this->mButton_gameover.move(100,500);
-    this->mScene_Pause.addWidget(&this->mButton_again);
-    this->mScene_Pause.addWidget(&this->mButton_gameover);
-    this->mScene_Pause.addWidget(&this->mButton_Resume);
+	)");
+	this->mButton_gameover.setIcon(QIcon(":/img/src/images/gameover.png"));
+	this->mButton_gameover.setIconSize(QSize(300, 41));
+	this->mButton_gameover.resize(300, 41);
+	this->mButton_gameover.move(100, 500);
+	this->mScene_Pause.addWidget(&this->mButton_gameover);
+
+	QFont font;
+	font.setFamily("Comic Sans MS"); // 黑体，适配手绘风格的硬朗感
+	font.setPointSize(14);
+	this->highest_score.setFont(font);
+	this->highest_score.move(100, 300);
+	this->highest_score.setStyleSheet("background-color: transparent;");
+	this->highest_score.setText("最高分:" + QString::number(this->score));
+	this->mScene_Pause.addWidget(&this->highest_score);
 }
 void GameManager::timer_Start()
 {

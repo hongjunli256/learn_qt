@@ -14,9 +14,9 @@ GameItemPool::~GameItemPool() {
 Enemy *GameItemPool::addEnemy()
 {
     Enemy *enemy;
-    int type =QRandomGenerator::global()->bounded(1,3);
-    int posX=QRandomGenerator::global()->bounded(50,480-50);
-    int posY=QRandomGenerator::global()->bounded(-100,-50);
+	int type = QRandomGenerator::global()->bounded(1, 3);
+	int posX = QRandomGenerator::global()->bounded(50, 480 - 50);
+	int posY=QRandomGenerator::global()->bounded(-100,-50);
     if(this->mEnemyWaitList.isEmpty())
     {
 

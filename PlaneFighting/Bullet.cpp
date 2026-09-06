@@ -1,5 +1,5 @@
 #include "Bullet.h"
-
+//这个的话就这样我觉得也差不多，统一管理全局子弹
 Bullet::Bullet(QPoint pos,bulletType type)
 {
     switch(type)

@@ -30,10 +30,11 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         Player.h Player.cpp
         Bullet.h Bullet.cpp
         Enemy.h Enemy.cpp
-        GameItem.h GameItem.cpp
+        GameItem.h
         Plane.h Plane.cpp
         GameItemPool.h GameItemPool.cpp
-        GameInitialConfig.h GameInitialConfig.cpp
+        GameInitialConfig.h
+
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET PlaneFighting APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
