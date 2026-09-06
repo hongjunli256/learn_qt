@@ -15,8 +15,8 @@ bool GameMap:: initMap(int level)
 	QFile file(":/map/maplevel/" + mapFileName + QString::number(level) + ".txt");
 	if(!file.open(QFile::ReadOnly))
     {
-        // QMessageBox::information(this,"提示","地图文件不存在");
-        this->initFail=true;
+		QMessageBox::information(this, "提示", "地图文件不存在");
+		this->initFail=true;
         return false;
     }
     QByteArray arr_all="";

@@ -29,16 +29,15 @@ void Player:: drawPlayer(QPainter*painter)
 bool Player:: initPlayer(int level)
 {
     QString mapFileName="playerPos";
-    QFile file("./maplevel/"+mapFileName+QString::number(level)+".txt");
-
-    if(!file.open(QFile::ReadOnly))
-    {
-//        QMessageBox::information(this,"提示","角色文件不存在");
-        this->initFail=true;
+	QFile file(":/map/maplevel/" + mapFileName + QString::number(level) + ".txt");
+	if (!file.open(QFile::ReadOnly))
+	{
+		QMessageBox::information(this, "提示", "角色文件不存在");
+		this->initFail=true;
         return false;
-    }
-    QByteArray arr="";
-    QList<QByteArray>pos;
+	}
+	QByteArray arr = "";
+	QList<QByteArray>pos;
     arr=file.readAll();
     pos=arr.split(',');
     this->x=pos[0].toInt();

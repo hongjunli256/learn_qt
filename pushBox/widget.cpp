@@ -3,6 +3,7 @@
 //不用ui，而是使用代码进行绘制，然后写好paintevent,在监听用户操作后进行逻辑处理后调用update()
 //不过倒是很奇怪当时为什么会被教着用一个成员变量来维持这个painter
 //这个项目倒是很不错，用txt存储关卡信息进行映射,现在我重新挪到qrc里面吧
+//可以把两个关卡文件合并，现在有点浪费，不过做起来也简单了，现在关卡也不多看之后加不加一下
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
 {
@@ -150,28 +151,29 @@ Widget::Widget(QWidget *parent)
 
     });
 
-    //检查文件路径正常
-    this->mapNum=this->countFiles("./maplevel")/2;
-    qDebug()<<this->mapNum;
-    if(this->mapNum==0)
-    {
-        QMessageBox msgBox(QMessageBox::Information,
-                           "提示",
-                           "文件不存在\n请检查文件夹maplevel配置",
-                           QMessageBox::Ok,
-                           nullptr);
-        connect(&msgBox, &QMessageBox::finished, [](int) {
-            QCoreApplication::exit(1);
-        });
-        msgBox.exec();
+	this->mapNum = 10;
+	//检查文件路径正常
+	//this->mapNum = this->countFiles("./maplevel") / 2;
+	// qDebug()<<this->mapNum;
+	// if(this->mapNum==0)
+	// {
+	//     QMessageBox msgBox(QMessageBox::Information,
+	//                        "提示",
+	//                        "文件不存在\n请检查文件夹maplevel配置",
+	//                        QMessageBox::Ok,
+	//                        nullptr);
+	//     connect(&msgBox, &QMessageBox::finished, [](int) {
+	//         QCoreApplication::exit(1);
+	//     });
+	//     msgBox.exec();
 
-    }
-    //建立地图
-    this->gm=new GameMap(this);
+	// }
+	//建立地图
+	this->gm = new GameMap(this);
 
-    //
-    this->p=new Player(this);
-    if(this->gm->initFail||this->p->initFail)
+	//
+	this->p = new Player(this);
+	if(this->gm->initFail||this->p->initFail)
     {
         QMessageBox msgBox(QMessageBox::Information,
                            "提示",
