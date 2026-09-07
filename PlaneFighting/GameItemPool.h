@@ -8,18 +8,22 @@ class GameItemPool
 {
 public:
     Player mPlane;
-    QList<Bullet*>mBulletList;
-    QList<Bullet*>mBulletWaitList;//墓地
+	QList<Bullet *> mBulletList;
+	QList<Bullet *> mBulletWaitList; //墓地
 
-    QList<Enemy*>mEnemyList;
-    QList<Enemy*>mEnemyWaitList;//墓地
+	QList<Enemy *> mSoldierList;
+	QList<Enemy *> mSoldierWaitList; //墓地
+	QList<Enemy *> mEliteList;
+	QList<Enemy *> mEliteWaitList; //墓地
+	QList<Enemy *> mBossList;
+	QList<Enemy *> mBossWaitList; //墓地
 
-    GameItemPool();
-    ~GameItemPool();
+	GameItemPool();
+	~GameItemPool();
 
-    Enemy *addEnemy();
-    void removeEnemy(Enemy*enemy);
-    Bullet*addBullet(QPoint pos,Bullet::bulletType type);
+	Enemy *addEnemy();
+	void removeEnemy(Enemy *enemy);
+	Bullet*addBullet(QPoint pos,Bullet::bulletType type);
     void removeBullet(Bullet*bullet);
 };
 

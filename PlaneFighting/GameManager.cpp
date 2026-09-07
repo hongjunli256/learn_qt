@@ -9,6 +9,9 @@
 //就写多态的敌机，暂停界面写一个分数榜，然后写一个文件里面存储最高分
 //明天再写吧，主要模块：分数，敌机多样化(多态化，还有boss需要定制一下)，看相应的架构需不需要调整吧，现在感觉有点拥挤，要不要单独写一个播放器虽然感觉也没必要，项目的确很小
 //先做前面两个，后面还有一些其他的音效文件，我到时候斟酌一下，明天搞定
+
+//改成多态还带来了啰里啰嗦的麻烦，看我明天加一个map<type,list>同样实现统一管理，免得每个类型都单独管理一遍
+//虽然改成这样的多态增强拓展性对这个项目本身没有多大意义（元素较少且不会进行大量拓展），但还是想将以前的小作坊代码改进一下
 GameManager::GameManager(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::Widget)
@@ -145,14 +148,24 @@ void GameManager::replay()
 		this->gameItemPool.removeBullet(bullet);
         this->mScene_Fight.removeItem(bullet);
 	}
-	for (Enemy *enemy : std::as_const(this->gameItemPool.mEnemyList))
+	for (Enemy *enemy : std::as_const(this->gameItemPool.mSoldierList))
 	{
         this->gameItemPool.removeEnemy(enemy);
         this->mScene_Fight.removeItem(enemy);
     }
-    this->initScene_Fight();
-    this->mGameView.setScene(&this->mScene_Fight);
-    this->mGameView.show();
+	for (Enemy *enemy : std::as_const(this->gameItemPool.mEliteList))
+	{
+		this->gameItemPool.removeEnemy(enemy);
+		this->mScene_Fight.removeItem(enemy);
+	}
+	for (Enemy *enemy : std::as_const(this->gameItemPool.mBossList))
+	{
+		this->gameItemPool.removeEnemy(enemy);
+		this->mScene_Fight.removeItem(enemy);
+	}
+	this->initScene_Fight();
+	this->mGameView.setScene(&this->mScene_Fight);
+	this->mGameView.show();
     this->mMediaBG.play();
     this->timer_Start();
 
