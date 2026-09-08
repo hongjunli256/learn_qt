@@ -15,6 +15,12 @@
 
 //框架改好了，看我等会写一下shootbullet，并且给plane也加上受击，顺便写一个受击动画，这样的话让游戏更完整
 //写好这些之后看能不能把Plane这个类写的更加完善，把小功能往上提
+//先写好plane
+
+//直接点x会提示异常退出，说明内存有问题（经过检查问题出现在敌机的管理上面）
+//然后现在的场景管理架构没有很好的利用好信号机制，飞机自己可以写一下复活信号方便connect，飞机死亡后的内容也需要补充
+
+//明天重新画图拆解逻辑，重新整理一下整个项目吧，一直在之前残缺的项目上面改也容易出问题，这样看来金山打字通的几个架构还是很不错的
 GameManager::GameManager(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::Widget)
@@ -41,10 +47,11 @@ GameManager::GameManager(QWidget *parent)
 
     //飞机移动
     this->timerPlaneMove=new QTimer(this);
-    connect(this->timerPlaneMove,&QTimer::timeout,this,&GameManager::planeMove);
+	connect(this->timerPlaneMove, &QTimer::timeout, this, &GameManager::planeMove);
 	connect(this->timerPlaneMove, &QTimer::timeout, this,
 			[this]()
 			{
+				QSet<Enemy *> indexEnemy;
 				for (QList<Enemy *> &list : this->gameItemPool.mEnemyListMap)
 				{
 					for (Enemy *em : std::as_const(list))
@@ -55,10 +62,14 @@ GameManager::GameManager(QWidget *parent)
 						}
 						if (em->y() > GameInitialConfig::MapHeight)
 						{
-							this->gameItemPool.removeEnemy(em);
-							this->mScene_Fight.removeItem(em);
+							indexEnemy.insert(em);
 						}
 					}
+				}
+				for (QSet<Enemy *>::iterator it = indexEnemy.begin(); it != indexEnemy.end(); it++)
+				{
+					this->gameItemPool.removeEnemy(*it);
+					this->mScene_Fight.removeItem(*it);
 				}
 			});
 
@@ -168,6 +179,8 @@ void GameManager::replay()
 		}
 	}
 	this->initScene_Fight();
+	this->gameItemPool.mPlane.Reset();
+	//connect(this->timerPlaneMove, &QTimer::timeout, this, &GameManager::planeMove);
 	this->mGameView.setScene(&this->mScene_Fight);
 	this->mGameView.show();
     this->mMediaBG.play();
@@ -276,12 +289,12 @@ void GameManager::initScene_Fight()    //战斗场景搭建
 	QFont font;
 	font.setFamily("Comic Sans MS"); // 黑体，适配手绘风格的硬朗感
 	font.setPointSize(14);
-	life_Num.setFont(font);
-	life_Num.move(30, 670);
-	life_Num.setText("x" + QString::number(1));
-	life_Num.setStyleSheet("background-color: transparent;");
+	lifeNum_label.setFont(font);
+	lifeNum_label.move(30, 670);
+	lifeNum_label.setText("x" + QString::number(this->gameItemPool.mPlane.lifeNum));
+	lifeNum_label.setStyleSheet("background-color: transparent;");
 
-	this->mScene_Fight.addWidget(&this->life_Num);
+	this->mScene_Fight.addWidget(&this->lifeNum_label);
 	this->mScene_Fight.addWidget(&this->mButton_Pause);
 	this->mScene_Fight.addItem(&this->gameItemPool.mPlane);
 	this->mScene_Fight.addItem(&this->life);
@@ -454,23 +467,29 @@ void GameManager::generateEnemy()
 		this->mScene_Fight.addItem(this->gameItemPool.addEnemy());
 	}
 }
-
+//子弹与飞机的碰撞
 void GameManager::Collision()
 {
     QSet<Bullet*>indexBullet;
-    QSet<Enemy*>indexEnemy;
-    for(int i=0;i<this->gameItemPool.mBulletList.size();i++)
-    {
+	QSet<Enemy *> indexEnemy;
+	for (int i = 0; i < this->gameItemPool.mBulletList.size(); i++)
+	{
 		for (QList<Enemy *> &list : this->gameItemPool.mEnemyListMap)
 		{
 			for (int j = 0; j < list.size(); j++)
 			{
 				if (list[j]->dead == false && this->gameItemPool.mBulletList[i]->type == Bullet::myBullet && this->gameItemPool.mBulletList[i]->collidesWithItem(list[j]))
 				{
-					indexBullet.insert(this->gameItemPool.mBulletList[i]);
-					this->explosion(list[j]);
+					if (list[j]->lifeNum <= 1)
+					{
+						indexBullet.insert(this->gameItemPool.mBulletList[i]);
+						this->explosion(*list[j]);
+					}
+					else
+					{
+						list[j]->lifeNum--;
+					}
 				}
-
 				else if (list[j]->dead == true && list[j]->pixmapNow > list[j]->pictureNum)
 				{
 					indexEnemy.insert(list[j]);
@@ -481,22 +500,51 @@ void GameManager::Collision()
 			}
 		}
 	}
+	Plane &player = this->gameItemPool.mPlane;
+	for (int i = 0; i < this->gameItemPool.mBulletList.size(); i++)
+	{
+		if (player.dead == false && this->gameItemPool.mBulletList[i]->type == Bullet::emnemyBullet && this->gameItemPool.mBulletList[i]->collidesWithItem(&player))
+		{
+			if (player.lifeNum <= 1)
+			{
+				indexBullet.insert(this->gameItemPool.mBulletList[i]);
+				this->explosion(player);
+				disconnect(this->timerPlaneMove, &QTimer::timeout, this, &GameManager::planeMove);
+			}
+			else
+			{
+				player.lifeNum--;
+				lifeNum_label.setText("x" + QString::number(this->gameItemPool.mPlane.lifeNum));
+			}
+		}
+		else if (player.dead == true && player.pixmapNow > player.pictureNum)
+		{
+			disconnect(player.mTimerExplosion, &QTimer::timeout, &player, &Plane::explosion);
+			player.mTimerExplosion->stop();
+
+			this->mScene_Fight.removeItem(&this->gameItemPool.mPlane);
+			this->timer_Pause();
+			break;
+		}
+	}
+
 	for (auto it = indexBullet.begin(); it != indexBullet.end(); it++)
 	{
 		this->gameItemPool.removeBullet(*it);
 		this->mScene_Fight.removeItem(*it);
 	}
 
-	for (auto it = indexEnemy.begin(); it != indexEnemy.end(); it++)
+	for (QSet<Enemy *>::iterator it = indexEnemy.begin(); it != indexEnemy.end(); it++)
 	{
 		this->gameItemPool.removeEnemy(*it);
 		this->mScene_Fight.removeItem(*it);
 	}
 }
-void GameManager:: explosion(Enemy*enemy)
+
+void GameManager::explosion(Plane &enemy)
 {
-    enemy->dead=true;
-    enemy->mTimerExplosion->start(100);
-    connect(enemy->mTimerExplosion,&QTimer::timeout,enemy,&Enemy::explosion);
+	enemy.dead = true;
+	enemy.mTimerExplosion->start(100);
+	connect(enemy.mTimerExplosion, &QTimer::timeout, &enemy, &Plane::explosion);
 }
 

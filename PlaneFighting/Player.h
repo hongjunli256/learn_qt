@@ -8,6 +8,7 @@ public:
     Player();
     QPoint shootBullet();
     void explosion();
+	void Reset();
 };
 
 #endif // PLAYER_H

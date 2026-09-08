@@ -10,11 +10,12 @@ GameItemPool::GameItemPool()
 	this->mEnemyWaitMap[Etype::Boss];
 }
 GameItemPool::~GameItemPool() {
-    for(int i=0;i<this->mBulletWaitList.size();i++)
-    {
-        delete this->mBulletWaitList[i];
-    }
+	for (int i = 0; i < this->mBulletWaitList.size(); i++)
+	{
+		delete this->mBulletWaitList[i];
+	}
 	this->mBulletWaitList.clear();
+
 	for (QList<Enemy *> &list : this->mEnemyWaitMap)
 	{
 		for (int i = 0; i < list.size(); i++)
@@ -75,7 +76,7 @@ Enemy *GameItemPool::addEnemy()
 	return enemy;
 }
 
-void GameItemPool::removeEnemy(Enemy*enemy)
+void GameItemPool::removeEnemy(Enemy *enemy)
 {
 	Etype type = enemy->GetType();
 	this->mEnemyListMap[type].removeOne(enemy);

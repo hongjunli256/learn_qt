@@ -2,9 +2,11 @@
 
 Player::Player()
 {
-    this->setPixmap(QPixmap(":/img/src/images/me2.png"));
-    this->setScale(0.5);
-    this->setPos(189,600);
+	this->lifeNum = 3;
+	this->setPixmap(QPixmap(":/img/src/images/me2.png"));
+	this->setScale(0.5);
+	this->setPos(189, 600);
+	this->pictureNum = 4;
 }
 
 QPoint Player::shootBullet()
@@ -19,4 +21,14 @@ void Player::explosion()
         this->setPixmap(QPixmap(":/img/src/images/me_destroy_"+QString::number(this->pixmapNow)+".png"));
         this->pixmapNow++;
     }
+}
+void Player::Reset()
+{
+	this->dead = false;
+	this->pixmapNow = 1;
+	this->lifeNum = 3;
+	this->setPixmap(QPixmap(":/img/src/images/me2.png"));
+	this->setScale(0.5);
+	this->setPos(189, 600);
+	this->pictureNum = 4;
 }

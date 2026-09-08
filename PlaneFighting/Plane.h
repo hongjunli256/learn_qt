@@ -14,10 +14,10 @@ public:
 
     float speed=2.0;
     float speedShootBullet=1;
+	int lifeNum = 0;
+	bool dead = false; //生命值为0后死亡dead=true，死亡后不立即删除，执行爆炸后移入对象池待命
 
-    bool dead=false;//生命值为0后死亡dead=true，死亡后不立即删除，执行爆炸后移入对象池待命
-
-    //爆炸辅助变量
+	//爆炸辅助变量
     QTimer*mTimerExplosion;
     int pictureNum=0;
     int pixmapNow=1;

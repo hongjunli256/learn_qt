@@ -14,11 +14,10 @@
 #include <QPushButton>
 #include <QToolButton>
 
-#include"Enemy.h"
+#include <QAudioOutput>
 #include <QDateTime>
-#include<QMediaPlayer>
-#include<QAudioOutput>
-#include"GameItemPool.h"
+#include <QMediaPlayer>
+#include "GameItemPool.h"
 //元素-在>场景-有>视图
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -50,7 +49,8 @@ public:
 	QLabel highest_score;
 	int score = 0;
 
-	QLabel life_Num;
+	QLabel lifeNum_label;
+	int lifeNum_int;
 	QGraphicsPixmapItem life;
 
 	QGraphicsPixmapItem mBackground1;
@@ -79,11 +79,11 @@ public:
     QAudioOutput *mAudioOutputSound;
 
     void Collision();
-    void explosion(Enemy*enemy);
-    void initView();
-    void initScene_Fight();
-    void initScene_Start();
-    void initScene_Pause();
+	void explosion(Plane &enemy);
+	void initView();
+	void initScene_Fight();
+	void initScene_Start();
+	void initScene_Pause();
 public slots:
     void BGroll();
     void planeMove();

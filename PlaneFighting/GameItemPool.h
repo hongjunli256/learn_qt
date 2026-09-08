@@ -12,13 +12,6 @@ public:
 	QList<Bullet *> mBulletList;
 	QList<Bullet *> mBulletWaitList; //墓地
 
-	// QList<Enemy *> mSoldierList;
-	// QList<Enemy *> mSoldierWaitList; //墓地
-	// QList<Enemy *> mEliteList;
-	// QList<Enemy *> mEliteWaitList; //墓地
-	// QList<Enemy *> mBossList;
-	// QList<Enemy *> mBossWaitList; //墓地
-
 	QMap<Etype, QList<Enemy *>> mEnemyListMap;
 	QMap<Etype, QList<Enemy *>> mEnemyWaitMap;
 

@@ -30,6 +30,7 @@ void Enemy::Reset(int posX, int posY)
 Soldier::Soldier(QPoint pos)
 	: Enemy(pos)
 {
+	this->lifeNum = 1;
 	this->setPixmap(QPixmap(":/img/src/images/enemy1.png"));
 	this->pictureNum = 4;
 }
@@ -43,6 +44,7 @@ void Soldier::explosion()
 }
 void Soldier::subReset()
 {
+	this->lifeNum = 1;
 	this->setPixmap(QPixmap(":/img/src/images/enemy1.png"));
 	this->pictureNum = 4;
 }
@@ -50,6 +52,7 @@ void Soldier::subReset()
 Elite::Elite(QPoint pos)
 	: Enemy(pos)
 {
+	this->lifeNum = 3;
 	this->setPixmap(QPixmap(":/img/src/images/enemy2.png"));
 	this->pictureNum = 4;
 }
@@ -63,12 +66,14 @@ void Elite::explosion()
 }
 void Elite::subReset()
 {
+	this->lifeNum = 3;
 	this->setPixmap(QPixmap(":/img/src/images/enemy2.png"));
 	this->pictureNum = 4;
 }
 Boss::Boss(QPoint pos)
 	: Enemy(pos)
 {
+	this->lifeNum = 5;
 	this->setPixmap(QPixmap(":/img/src/images/enemy3_n1.png"));
 	this->pictureNum = 6;
 }
@@ -82,6 +87,7 @@ void Boss::explosion()
 }
 void Boss::subReset()
 {
+	this->lifeNum = 5;
 	this->setPixmap(QPixmap(":/img/src/images/enemy3_n1.png"));
 	this->pictureNum = 6;
 }
