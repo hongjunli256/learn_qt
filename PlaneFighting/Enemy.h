@@ -19,7 +19,7 @@ public:
 
 	void EnemyMove();
 
-	virtual QPoint shootBullet();
+	QPoint shootBullet();
 	void Reset(int posX, int posY);
 	virtual void subReset() = 0;
 	virtual Etype GetType() = 0;
@@ -32,9 +32,9 @@ class Soldier : public Enemy
 	Q_OBJECT
 public:
 	Soldier(QPoint pos);
-	~Soldier();
+	~Soldier() {};
 
-	virtual QPoint shootBullet();
+	//virtual QPoint shootBullet();
 	virtual void subReset();
 	virtual Etype GetType() { return Etype::Soldier; };
 public slots:
@@ -46,9 +46,9 @@ class Elite : public Enemy
 	Q_OBJECT
 public:
 	Elite(QPoint pos);
-	~Elite();
+	~Elite() {};
 
-	virtual QPoint shootBullet();
+	//virtual QPoint shootBullet();
 	virtual void subReset();
 	virtual Etype GetType() { return Etype::Elite; };
 public slots:
@@ -60,9 +60,9 @@ class Boss : public Enemy
 	Q_OBJECT
 public:
 	Boss(QPoint pos);
-	~Boss();
+	~Boss() {};
 
-	virtual QPoint shootBullet();
+	//virtual QPoint shootBullet();
 	virtual void subReset();
 	virtual Etype GetType() { return Etype::Boss; };
 public slots:

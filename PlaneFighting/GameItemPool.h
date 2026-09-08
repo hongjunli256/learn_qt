@@ -1,9 +1,10 @@
 #ifndef GAMEITEMPOOL_H
 #define GAMEITEMPOOL_H
-#include"Player.h"
-#include"Enemy.h"
-#include"Bullet.h"
+#include <QMap>
 #include <QRandomGenerator>
+#include "Bullet.h"
+#include "Enemy.h"
+#include "Player.h"
 class GameItemPool
 {
 public:
@@ -11,12 +12,15 @@ public:
 	QList<Bullet *> mBulletList;
 	QList<Bullet *> mBulletWaitList; //墓地
 
-	QList<Enemy *> mSoldierList;
-	QList<Enemy *> mSoldierWaitList; //墓地
-	QList<Enemy *> mEliteList;
-	QList<Enemy *> mEliteWaitList; //墓地
-	QList<Enemy *> mBossList;
-	QList<Enemy *> mBossWaitList; //墓地
+	// QList<Enemy *> mSoldierList;
+	// QList<Enemy *> mSoldierWaitList; //墓地
+	// QList<Enemy *> mEliteList;
+	// QList<Enemy *> mEliteWaitList; //墓地
+	// QList<Enemy *> mBossList;
+	// QList<Enemy *> mBossWaitList; //墓地
+
+	QMap<Etype, QList<Enemy *>> mEnemyListMap;
+	QMap<Etype, QList<Enemy *>> mEnemyWaitMap;
 
 	GameItemPool();
 	~GameItemPool();

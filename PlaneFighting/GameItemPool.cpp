@@ -1,94 +1,85 @@
 #include "GameItemPool.h"
 
-GameItemPool::GameItemPool() {}
+GameItemPool::GameItemPool()
+{
+	this->mEnemyListMap[Etype::Soldier];
+	this->mEnemyListMap[Etype::Elite];
+	this->mEnemyListMap[Etype::Boss];
+	this->mEnemyWaitMap[Etype::Soldier];
+	this->mEnemyWaitMap[Etype::Elite];
+	this->mEnemyWaitMap[Etype::Boss];
+}
 GameItemPool::~GameItemPool() {
     for(int i=0;i<this->mBulletWaitList.size();i++)
     {
         delete this->mBulletWaitList[i];
     }
-	for (int i = 0; i < this->mSoldierWaitList.size(); i++)
+	this->mBulletWaitList.clear();
+	for (QList<Enemy *> &list : this->mEnemyWaitMap)
 	{
-		delete this->mSoldierWaitList[i];
-	}
-	for (int i = 0; i < this->mEliteWaitList.size(); i++)
-	{
-		delete this->mEliteWaitList[i];
-	}
-	for (int i = 0; i < this->mBossWaitList.size(); i++)
-	{
-		delete this->mBossWaitList[i];
+		for (int i = 0; i < list.size(); i++)
+		{
+			delete list[i];
+		}
+		list.clear();
 	}
 }
 Enemy *GameItemPool::addEnemy()
 {
-    Enemy *enemy;
-	int type = QRandomGenerator::global()->bounded(1, 3);
+	Enemy *enemy = nullptr;
+	int type_int = QRandomGenerator::global()->bounded(1, 4);
+	Etype type{};
 	int posX = QRandomGenerator::global()->bounded(50, 480 - 50);
 	int posY=QRandomGenerator::global()->bounded(-100,-50);
-	switch (type)
+	switch (type_int)
 	{
 	case 1:
-		if (this->mSoldierWaitList.isEmpty())
-		{
-			enemy = new Soldier(QPoint(posX, posY));
-		}
-		else
-		{
-			enemy = this->mSoldierWaitList.first();
-			this->mSoldierWaitList.removeFirst();
-			enemy->Reset(posX, posY);
-			this->mSoldierList.append(enemy);
-		}
+		type = Etype::Soldier;
 		break;
 	case 2:
-		if (this->mEliteWaitList.isEmpty())
-		{
-			enemy = new Elite(QPoint(posX, posY));
-		}
-		else
-		{
-			enemy = this->mEliteWaitList.first();
-			this->mEliteWaitList.removeFirst();
-			enemy->Reset(posX, posY);
-			this->mEliteList.append(enemy);
-		}
+		type = Etype::Elite;
 		break;
 	case 3:
-		if (this->mBossWaitList.isEmpty())
-		{
-			enemy = new Boss(QPoint(posX, posY));
-		}
-		else
-		{
-			enemy = this->mBossWaitList.first();
-			this->mBossWaitList.removeFirst();
-			enemy->Reset(posX, posY);
-			this->mBossList.append(enemy);
-		}
-
+		type = Etype::Boss;
 		break;
 	default:
+		type = Etype::Soldier;
 		break;
 	}
+	QList<Enemy *> &list = this->mEnemyWaitMap[type];
+	if (list.isEmpty())
+	{
+		switch (type)
+		{
+		case Etype::Soldier:
+			enemy = new Soldier(QPoint(posX, posY));
+			break;
+		case Etype::Elite:
+			enemy = new Elite(QPoint(posX, posY));
+			break;
+		case Etype::Boss:
+			enemy = new Boss(QPoint(posX, posY));
+			break;
+		default:
+			enemy = new Soldier(QPoint(posX, posY));
+			break;
+		}
+	}
+	else
+	{
+		enemy = list.first();
+		list.removeFirst();
+		enemy->Reset(posX, posY);
+	}
+	this->mEnemyListMap[type].append(enemy);
 	return enemy;
 }
+
 void GameItemPool::removeEnemy(Enemy*enemy)
 {
-	switch (enemy->GetType())
-	{
-	case Etype::Soldier:
-		this->mSoldierList.removeOne(enemy);
-		this->mSoldierWaitList.append(enemy);
-		break;
-	case Etype::Elite:
-		this->mEliteList.removeOne(enemy);
-		this->mEliteWaitList.append(enemy);
-		break;
-	case Etype::Boss:
-		this->mBossList.removeOne(enemy);
-		this->mBossWaitList.append(enemy);
-		break;
-	}
+	Etype type = enemy->GetType();
+	this->mEnemyListMap[type].removeOne(enemy);
+	this->mEnemyWaitMap[type].append(enemy);
 }
 Bullet*GameItemPool::addBullet(QPoint pos,Bullet::bulletType type)
 {

@@ -12,6 +12,9 @@
 
 //改成多态还带来了啰里啰嗦的麻烦，看我明天加一个map<type,list>同样实现统一管理，免得每个类型都单独管理一遍
 //虽然改成这样的多态增强拓展性对这个项目本身没有多大意义（元素较少且不会进行大量拓展），但还是想将以前的小作坊代码改进一下
+
+//框架改好了，看我等会写一下shootbullet，并且给plane也加上受击，顺便写一个受击动画，这样的话让游戏更完整
+//写好这些之后看能不能把Plane这个类写的更加完善，把小功能往上提
 GameManager::GameManager(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::Widget)
@@ -39,105 +42,113 @@ GameManager::GameManager(QWidget *parent)
     //飞机移动
     this->timerPlaneMove=new QTimer(this);
     connect(this->timerPlaneMove,&QTimer::timeout,this,&GameManager::planeMove);
-    connect(this->timerPlaneMove,&QTimer::timeout,this,[this](){
-        for(Enemy*em:std::as_const(this->gameItemPool.mEnemyList))
-        {
-            if(em->dead!=true)
-            {
-                em->EnemyMove();
-            }
-            if(em->y()>GameInitialConfig::MapHeight)
-            {
-                this->gameItemPool.removeEnemy(em);
-                this->mScene_Fight.removeItem(em);
-            }
-        }
-    });
+	connect(this->timerPlaneMove, &QTimer::timeout, this,
+			[this]()
+			{
+				for (QList<Enemy *> &list : this->gameItemPool.mEnemyListMap)
+				{
+					for (Enemy *em : std::as_const(list))
+					{
+						if (em->dead != true)
+						{
+							em->EnemyMove();
+						}
+						if (em->y() > GameInitialConfig::MapHeight)
+						{
+							this->gameItemPool.removeEnemy(em);
+							this->mScene_Fight.removeItem(em);
+						}
+					}
+				}
+			});
 
+	//子弹发射
+	this->timerShootBullet = new QTimer(this);
+	connect(this->timerShootBullet, &QTimer::timeout, this,
+			[this]()
+			{
+				this->mScene_Fight.addItem(this->gameItemPool.addBullet(this->gameItemPool.mPlane.shootBullet(), Bullet::myBullet));
 
-    //子弹发射
-    this->timerShootBullet=new QTimer(this);
-    connect(this->timerShootBullet,&QTimer::timeout,this,[this](){
-        this->mScene_Fight.addItem(this->gameItemPool.addBullet(this->gameItemPool.mPlane.shootBullet(),Bullet::myBullet));
+				this->mMediaShoot.setAudioOutput(this->mAudioOutputSound);
+				this->mMediaShoot.stop();
+				this->mMediaShoot.setSource(QUrl("qrc:/snd/src/sound/button.wav"));
+				// 播放前检查媒体状态
+				this->mMediaShoot.play();
+				for (QList<Enemy *> &list : this->gameItemPool.mEnemyListMap)
+				{
+					for (Enemy *em : std::as_const(list))
+					{
+						if (em->y() > 0 || em->dead != true)
+						{
+							this->mScene_Fight.addItem(this->gameItemPool.addBullet(em->shootBullet(), Bullet::emnemyBullet));
+						}
+					}
+				}
+			});
 
-        this->mMediaShoot.setAudioOutput(this->mAudioOutputSound);
-        this->mMediaShoot.stop();
-		this->mMediaShoot.setSource(QUrl("qrc:/snd/src/sound/button.wav"));
-		// 播放前检查媒体状态
-		this->mMediaShoot.play();
-        for(Enemy*em:std::as_const(this->gameItemPool.mEnemyList))
-        {
-            if(em->y()>0||em->dead!=true)
-            {
-                this->mScene_Fight.addItem(this->gameItemPool.addBullet(em->shootBullet(),Bullet::emnemyBullet));
-            }
-        }
-    });
+	//子弹移动
+	this->timerBulletMove = new QTimer(this);
+	connect(this->timerBulletMove, &QTimer::timeout, this,
+			[this]()
+			{
+				this->Collision();
+				for (int i = 0; i < this->gameItemPool.mBulletList.size(); i++)
+				{
+					Bullet *bullet = this->gameItemPool.mBulletList[i];
+					bullet->bulletMove();
+					if (bullet->y() < 0 || bullet->y() > GameInitialConfig::MapHeight)
+					{
+						this->mScene_Fight.removeItem(bullet);
+						this->gameItemPool.removeBullet(bullet);
+					}
+				}
+			});
 
-    //子弹移动
-    this->timerBulletMove=new QTimer(this);
-    connect(this->timerBulletMove,&QTimer::timeout,this,[this](){
-        this->Collision();
-        for(int i=0;i<this->gameItemPool.mBulletList.size();i++)
-        {
-            Bullet*bullet=this->gameItemPool.mBulletList[i];
-            bullet->bulletMove();
-            if(bullet->y()<0||bullet->y()>GameInitialConfig::MapHeight)
-            {
-                this->mScene_Fight.removeItem(bullet);
-                this->gameItemPool.removeBullet(bullet);
-            }
-        }
-    });
+	//产生敌人
+	this->timerGenerateEnemy = new QTimer(this);
+	connect(this->timerGenerateEnemy, &QTimer::timeout, this, &GameManager::generateEnemy);
 
-    //产生敌人
-    this->timerGenerateEnemy=new QTimer(this);
-    connect(this->timerGenerateEnemy,&QTimer::timeout,this,&GameManager::generateEnemy);
+	//从开始界面到游戏界面
+	connect(&this->mButton_Start, &QPushButton::clicked, this,
+			[this]()
+			{
+				//定时器启动
+				this->timer_Start();
+				//场景切换
+				this->mGameView.setScene(&this->mScene_Fight);
+				this->mGameView.show();
 
-
-    //从开始界面到游戏界面
-    connect(&this->mButton_Start,&QPushButton::clicked,this,[this](){
-
-        //定时器启动
-        this->timer_Start();
-        //场景切换
-        this->mGameView.setScene(&this->mScene_Fight);
-        this->mGameView.show();
-
-        //背景音乐启动
-        this->mMediaBG.setAudioOutput(this->mAudioOutputMusic);
-        this->mMediaBG.stop();
-		this->mMediaBG.setSource(QUrl("qrc:/snd/src/sound/game_music.ogg"));
-		// 播放前检查媒体状态
-        this->mMediaBG.play();
-
-    });
-    //从开始界面到暂停界面
-    connect(&this->mButton_Pause,&QPushButton::clicked,this,[this](){
-
-        //定时器暂停
-        this->timer_Pause();
-        //场景切换
-        this->mGameView.setScene(&this->mScene_Pause);
-        this->mGameView.show();
-        this->mMediaBG.stop();
-
-    });
-    //从暂停界面到战斗界面
-    connect(&this->mButton_Resume,&QPushButton::clicked,this,[this](){
-
-        //定时器暂停
-        this->timer_Start();
-        //场景切换
-        this->mGameView.setScene(&this->mScene_Fight);
-        this->mGameView.show();
-        this->mMediaBG.play();
-
-    });
-    connect(&this->mButton_gameover,&QPushButton::clicked,this,&GameManager::gameOver);
-    connect(&this->mButton_again,&QPushButton::clicked,this,&GameManager::replay);
-
-
+				//背景音乐启动
+				this->mMediaBG.setAudioOutput(this->mAudioOutputMusic);
+				this->mMediaBG.stop();
+				this->mMediaBG.setSource(QUrl("qrc:/snd/src/sound/game_music.ogg"));
+				// 播放前检查媒体状态
+				this->mMediaBG.play();
+			});
+	//从开始界面到暂停界面
+	connect(&this->mButton_Pause, &QPushButton::clicked, this,
+			[this]()
+			{
+				//定时器暂停
+				this->timer_Pause();
+				//场景切换
+				this->mGameView.setScene(&this->mScene_Pause);
+				this->mGameView.show();
+				this->mMediaBG.stop();
+			});
+	//从暂停界面到战斗界面
+	connect(&this->mButton_Resume, &QPushButton::clicked, this,
+			[this]()
+			{
+				//定时器暂停
+				this->timer_Start();
+				//场景切换
+				this->mGameView.setScene(&this->mScene_Fight);
+				this->mGameView.show();
+				this->mMediaBG.play();
+			});
+	connect(&this->mButton_gameover, &QPushButton::clicked, this, &GameManager::gameOver);
+	connect(&this->mButton_again, &QPushButton::clicked, this, &GameManager::replay);
 }
 void GameManager::replay()
 {
@@ -148,20 +159,13 @@ void GameManager::replay()
 		this->gameItemPool.removeBullet(bullet);
         this->mScene_Fight.removeItem(bullet);
 	}
-	for (Enemy *enemy : std::as_const(this->gameItemPool.mSoldierList))
+	for (QList<Enemy *> &list : this->gameItemPool.mEnemyListMap)
 	{
-        this->gameItemPool.removeEnemy(enemy);
-        this->mScene_Fight.removeItem(enemy);
-    }
-	for (Enemy *enemy : std::as_const(this->gameItemPool.mEliteList))
-	{
-		this->gameItemPool.removeEnemy(enemy);
-		this->mScene_Fight.removeItem(enemy);
-	}
-	for (Enemy *enemy : std::as_const(this->gameItemPool.mBossList))
-	{
-		this->gameItemPool.removeEnemy(enemy);
-		this->mScene_Fight.removeItem(enemy);
+		for (Enemy *enemy : std::as_const(list))
+		{
+			this->gameItemPool.removeEnemy(enemy);
+			this->mScene_Fight.removeItem(enemy);
+		}
 	}
 	this->initScene_Fight();
 	this->mGameView.setScene(&this->mScene_Fight);
@@ -445,11 +449,10 @@ void GameManager::planeMove()
 
 void GameManager::generateEnemy()
 {
-    if(this->gameItemPool.mEnemyList.size()<5)
-    {
-        this->mScene_Fight.addItem(this->gameItemPool.addEnemy());
-    }
-
+	if (this->gameItemPool.mEnemyListMap[Etype::Boss].size() < 1)
+	{
+		this->mScene_Fight.addItem(this->gameItemPool.addEnemy());
+	}
 }
 
 void GameManager::Collision()
@@ -458,37 +461,37 @@ void GameManager::Collision()
     QSet<Enemy*>indexEnemy;
     for(int i=0;i<this->gameItemPool.mBulletList.size();i++)
     {
-        for(int j=0;j<this->gameItemPool.mEnemyList.size();j++)
-        {
-            if(this->gameItemPool.mEnemyList[j]->dead==false&&this->gameItemPool.mBulletList[i]->type==Bullet::myBullet&&this->gameItemPool.mBulletList[i]->collidesWithItem(this->gameItemPool.mEnemyList[j]))
-            {
+		for (QList<Enemy *> &list : this->gameItemPool.mEnemyListMap)
+		{
+			for (int j = 0; j < list.size(); j++)
+			{
+				if (list[j]->dead == false && this->gameItemPool.mBulletList[i]->type == Bullet::myBullet && this->gameItemPool.mBulletList[i]->collidesWithItem(list[j]))
+				{
+					indexBullet.insert(this->gameItemPool.mBulletList[i]);
+					this->explosion(list[j]);
+				}
 
-                indexBullet.insert(this->gameItemPool.mBulletList[i]);
-                this->explosion(this->gameItemPool.mEnemyList[j]);
-            }
+				else if (list[j]->dead == true && list[j]->pixmapNow > list[j]->pictureNum)
+				{
+					indexEnemy.insert(list[j]);
+					//爆炸动画结束
+					disconnect(list[j]->mTimerExplosion, &QTimer::timeout, list[j], &Enemy::explosion);
+					list[j]->mTimerExplosion->stop();
+				}
+			}
+		}
+	}
+	for (auto it = indexBullet.begin(); it != indexBullet.end(); it++)
+	{
+		this->gameItemPool.removeBullet(*it);
+		this->mScene_Fight.removeItem(*it);
+	}
 
-            else if(this->gameItemPool.mEnemyList[j]->dead==true&&this->gameItemPool.mEnemyList[j]->pixmapNow>this->gameItemPool.mEnemyList[j]->pictureNum)
-            {
-
-                indexEnemy.insert(this->gameItemPool.mEnemyList[j]);
-                //爆炸动画结束
-                disconnect(gameItemPool.mEnemyList[j]->mTimerExplosion,&QTimer::timeout,gameItemPool.mEnemyList[j],&Enemy::explosion);
-                gameItemPool.mEnemyList[j]->mTimerExplosion->stop();
-            }
-        }
-    }
-    for(auto it=indexBullet.begin();it!=indexBullet.end();it++)
-    {
-        this->gameItemPool.removeBullet(*it);
-        this->mScene_Fight.removeItem(*it);
-    }
-
-    for(auto it=indexEnemy.begin();it!=indexEnemy.end();it++)
-    {
-        this->gameItemPool.removeEnemy(*it);
-        this->mScene_Fight.removeItem(*it);
-    }
-
+	for (auto it = indexEnemy.begin(); it != indexEnemy.end(); it++)
+	{
+		this->gameItemPool.removeEnemy(*it);
+		this->mScene_Fight.removeItem(*it);
+	}
 }
 void GameManager:: explosion(Enemy*enemy)
 {
