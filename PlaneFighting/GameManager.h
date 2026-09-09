@@ -18,6 +18,9 @@
 #include <QDateTime>
 #include <QMediaPlayer>
 #include "GameItemPool.h"
+
+#include "scenepause.h"
+#include "scenestart.h"
 //元素-在>场景-有>视图
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -35,20 +38,25 @@ public:
     //视图与场景
     QGraphicsView mGameView;
     QGraphicsScene mScene_Fight;
-    QGraphicsScene mScene_Start;
-    QGraphicsScene mScene_Pause;
+	// QGraphicsScene mScene_Start;
+	//QGraphicsScene mScene_Pause;
 
-    //地图元素
-    QGraphicsPixmapItem mBackground_Start;
-    QPushButton mButton_Start;
-    QGraphicsPixmapItem mBackground_Pause;
-    QToolButton mButton_Pause;
-    QToolButton mButton_Resume;
-    QToolButton mButton_again;
-    QToolButton mButton_gameover;
-	QLabel highest_score;
-	int score = 0;
+	//地图元素
+	// QGraphicsPixmapItem mBackground_Start;
+	// QPushButton mButton_Start;
+	SceneStart mSceneStart;
 
+	//QGraphicsPixmapItem mBackground_Pause;
+
+	// QToolButton mButton_Resume;
+	// QToolButton mButton_again;
+	// QToolButton mButton_gameover;
+	// QLabel highest_score;
+	// int score = 0;
+
+	ScenePause mScenePause;
+
+	QToolButton mButton_Pause;
 	QLabel lifeNum_label;
 	int lifeNum_int;
 	QGraphicsPixmapItem life;
@@ -82,8 +90,8 @@ public:
 	void explosion(Plane &enemy);
 	void initView();
 	void initScene_Fight();
-	void initScene_Start();
-	void initScene_Pause();
+	//	void initScene_Start();
+	//void initScene_Pause();
 public slots:
     void BGroll();
     void planeMove();

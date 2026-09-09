@@ -21,6 +21,8 @@
 //然后现在的场景管理架构没有很好的利用好信号机制，飞机自己可以写一下复活信号方便connect，飞机死亡后的内容也需要补充
 
 //明天重新画图拆解逻辑，重新整理一下整个项目吧，一直在之前残缺的项目上面改也容易出问题，这样看来金山打字通的几个架构还是很不错的
+//整理之后才发现当初的自己完全没有分界面独立化借由信号传递功能的思想，现在狠狠重头来吧
+//已经搬运了简单的Start和Pause，明天好好搬一搬fight顺便优化一下代码9.10
 GameManager::GameManager(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::Widget)
@@ -34,19 +36,19 @@ GameManager::GameManager(QWidget *parent)
     this->mAudioOutputSound = new QAudioOutput(this);
     this->mAudioOutputSound->setVolume(GameInitialConfig::Volume);  // 音量范围0.0-1.0
 
-    this->initScene_Start();
+	//this->initScene_Start();
 
-    this->mGameView.setScene(&this->mScene_Start);
-    this->mGameView.show();
-    this->initScene_Fight();
-    this->initScene_Pause();
+	this->mGameView.setScene(this->mSceneStart.GetScene());
+	this->mGameView.show();
+	this->initScene_Fight();
+	//    this->initScene_Pause();
 
-    //背景滚动
-    this->timerRollBG=new QTimer(this);
-    connect(this->timerRollBG,&QTimer::timeout,this,&GameManager::BGroll);
+	//背景滚动
+	this->timerRollBG = new QTimer(this);
+	connect(this->timerRollBG, &QTimer::timeout, this, &GameManager::BGroll);
 
-    //飞机移动
-    this->timerPlaneMove=new QTimer(this);
+	//飞机移动
+	this->timerPlaneMove = new QTimer(this);
 	connect(this->timerPlaneMove, &QTimer::timeout, this, &GameManager::planeMove);
 	connect(this->timerPlaneMove, &QTimer::timeout, this,
 			[this]()
@@ -120,7 +122,7 @@ GameManager::GameManager(QWidget *parent)
 	connect(this->timerGenerateEnemy, &QTimer::timeout, this, &GameManager::generateEnemy);
 
 	//从开始界面到游戏界面
-	connect(&this->mButton_Start, &QPushButton::clicked, this,
+	connect(&this->mSceneStart, &SceneStart::needchangeScene, this,
 			[this]()
 			{
 				//定时器启动
@@ -143,12 +145,12 @@ GameManager::GameManager(QWidget *parent)
 				//定时器暂停
 				this->timer_Pause();
 				//场景切换
-				this->mGameView.setScene(&this->mScene_Pause);
+				this->mGameView.setScene(this->mScenePause.GetScene());
 				this->mGameView.show();
 				this->mMediaBG.stop();
 			});
 	//从暂停界面到战斗界面
-	connect(&this->mButton_Resume, &QPushButton::clicked, this,
+	connect(&this->mScenePause, &ScenePause::needchangeScene, this,
 			[this]()
 			{
 				//定时器暂停
@@ -158,8 +160,8 @@ GameManager::GameManager(QWidget *parent)
 				this->mGameView.show();
 				this->mMediaBG.play();
 			});
-	connect(&this->mButton_gameover, &QPushButton::clicked, this, &GameManager::gameOver);
-	connect(&this->mButton_again, &QPushButton::clicked, this, &GameManager::replay);
+	connect(&this->mScenePause, &ScenePause::needGameOver, this, &GameManager::gameOver);
+	connect(&this->mScenePause, &ScenePause::needReplay, this, &GameManager::replay);
 }
 void GameManager::replay()
 {
@@ -211,46 +213,46 @@ void GameManager::initView()
     this->mGameView.setSceneRect(QRect(0,0,GameInitialConfig::MapWidth,GameInitialConfig::MapHeight));//显示的初始区域
     this->mGameView.setFixedSize(GameInitialConfig::MapWidth,GameInitialConfig::MapHeight);//视野大小
 }
-void GameManager::initScene_Start()
-{
-    //起始场景搭建
-    this->mBackground_Start.setPixmap(QPixmap(":/img/src/images/background.png"));
-    this->mBackground_Start.setPos(0,0);
+// void GameManager::initScene_Start()
+// {
+//     //起始场景搭建
+//     this->mBackground_Start.setPixmap(QPixmap(":/img/src/images/background.png"));
+//     this->mBackground_Start.setPos(0,0);
 
-    this->mButton_Start.resize(160, 50);
-    this->mButton_Start.setText("游戏开始");
-    this->mButton_Start.move(160, 500);
-    // 字体设置
-    QFont font;
-    font.setFamily("Comic Sans MS");
-    font.setPointSize(14);
-    font.setBold(true);
-    this->mButton_Start.setFont(font);
+//     this->mButton_Start.resize(160, 50);
+//     this->mButton_Start.setText("游戏开始");
+//     this->mButton_Start.move(160, 500);
+//     // 字体设置
+//     QFont font;
+//     font.setFamily("Comic Sans MS");
+//     font.setPointSize(14);
+//     font.setBold(true);
+//     this->mButton_Start.setFont(font);
 
-    // 样式表设置
-    this->mButton_Start.setStyleSheet(R"(
-    QPushButton {
-        color: #333333; /* 深灰色文字，和背景协调 */
-        background-color: rgba(255, 255, 255, 80); /* 白色半透明背景，柔和不突兀 */
-        border: 2px solid #cccccc; /* 浅灰边框，模拟手绘线条感 */
-        padding: 0px;
-    }
-    QPushButton:hover {
-        background-color: rgba(255, 255, 255, 120); /* 悬停时白色更明显 */
-        border-color: #aaaaaa; /* 边框稍深，突出交互 */
-    }
-    QPushButton:pressed {
-        background-color: rgba(240, 240, 240, 120); /* 按下时浅灰，有按压反馈 */
-        padding: 9px 14px 7px 16px; /* 轻微位移，增强按压感 */
-    }
-    QPushButton:focus {
-        outline: none; /* 去除焦点虚线，保持简洁 */
-    }
-)");
-    this->mScene_Start.setSceneRect(QRect(0,0,GameInitialConfig::MapWidth,GameInitialConfig::MapHeight));
-    this->mScene_Start.addItem(&this->mBackground_Start);
-    this->mScene_Start.addWidget(&this->mButton_Start);
-}
+//     // 样式表设置
+//     this->mButton_Start.setStyleSheet(R"(
+//     QPushButton {
+//         color: #333333; /* 深灰色文字，和背景协调 */
+//         background-color: rgba(255, 255, 255, 80); /* 白色半透明背景，柔和不突兀 */
+//         border: 2px solid #cccccc; /* 浅灰边框，模拟手绘线条感 */
+//         padding: 0px;
+//     }
+//     QPushButton:hover {
+//         background-color: rgba(255, 255, 255, 120); /* 悬停时白色更明显 */
+//         border-color: #aaaaaa; /* 边框稍深，突出交互 */
+//     }
+//     QPushButton:pressed {
+//         background-color: rgba(240, 240, 240, 120); /* 按下时浅灰，有按压反馈 */
+//         padding: 9px 14px 7px 16px; /* 轻微位移，增强按压感 */
+//     }
+//     QPushButton:focus {
+//         outline: none; /* 去除焦点虚线，保持简洁 */
+//     }
+// )");
+//     this->mScene_Start.setSceneRect(QRect(0,0,GameInitialConfig::MapWidth,GameInitialConfig::MapHeight));
+//     this->mScene_Start.addItem(&this->mBackground_Start);
+//     this->mScene_Start.addWidget(&this->mButton_Start);
+// }
 void GameManager::initScene_Fight()    //战斗场景搭建
 {
     //背景图
@@ -300,110 +302,110 @@ void GameManager::initScene_Fight()    //战斗场景搭建
 	this->mScene_Fight.addItem(&this->life);
 }
 
-void GameManager::initScene_Pause()
-{
-    this->mBackground_Pause.setPixmap(QPixmap(":/img/src/images/background.png"));
-    this->mBackground_Pause.setPos(0,0);
-    //暂停场景搭建
-    this->mScene_Pause.setSceneRect(QRect(0,0,GameInitialConfig::MapWidth,GameInitialConfig::MapHeight));
-    this->mScene_Pause.addItem(&this->mBackground_Pause);
-    this->mButton_Resume.resize(60,45);
-    this->mButton_Resume.move(420,0);
-    // 图标尺寸建议比按钮小2-4像素，避免边缘被截断
-    this->mButton_Resume.setIconSize(QSize(56,41));
-	this->mButton_Resume.setStyleSheet(R"(
-    QToolButton {
-        border: none;               /* 去除边框 */
-        background: transparent;    /* 透明背景 */
-        padding: 0px;               /* 去除内边距 */
-        image: url(:/img/src/images/resume_nor.png);
-    }
-    QToolButton:pressed {
+// void GameManager::initScene_Pause()
+// {
+//     this->mBackground_Pause.setPixmap(QPixmap(":/img/src/images/background.png"));
+//     this->mBackground_Pause.setPos(0,0);
+//     //暂停场景搭建
+//     this->mScene_Pause.setSceneRect(QRect(0,0,GameInitialConfig::MapWidth,GameInitialConfig::MapHeight));
+//     this->mScene_Pause.addItem(&this->mBackground_Pause);
+//     this->mButton_Resume.resize(60,45);
+//     this->mButton_Resume.move(420,0);
+//     // 图标尺寸建议比按钮小2-4像素，避免边缘被截断
+//     this->mButton_Resume.setIconSize(QSize(56,41));
+// 	this->mButton_Resume.setStyleSheet(R"(
+//     QToolButton {
+//         border: none;               /* 去除边框 */
+//         background: transparent;    /* 透明背景 */
+//         padding: 0px;               /* 去除内边距 */
+//         image: url(:/img/src/images/resume_nor.png);
+//     }
+//     QToolButton:pressed {
 
-        image: url(:/img/src/images/resume_pressed.png);
-    }
-	)");
-	this->mScene_Pause.addWidget(&this->mButton_Resume);
+//         image: url(:/img/src/images/resume_pressed.png);
+//     }
+// 	)");
+// 	this->mScene_Pause.addWidget(&this->mButton_Resume);
 
-	this->mButton_again.resize(300, 41);
-	this->mButton_again.setStyleSheet(R"(
-    QToolButton {
-        border: none;               /* 去除边框 */
-        background: transparent;    /* 透明背景 */
-        padding: 0px;               /* 去除内边距 */
-    }
-	)");
-	this->mButton_again.setIcon(QIcon(":/img/src/images/again.png"));
-	this->mButton_again.move(100, 400);
-	this->mButton_again.setIconSize(QSize(300, 41));
-	this->mScene_Pause.addWidget(&this->mButton_again);
+// 	this->mButton_again.resize(300, 41);
+// 	this->mButton_again.setStyleSheet(R"(
+//     QToolButton {
+//         border: none;               /* 去除边框 */
+//         background: transparent;    /* 透明背景 */
+//         padding: 0px;               /* 去除内边距 */
+//     }
+// 	)");
+// 	this->mButton_again.setIcon(QIcon(":/img/src/images/again.png"));
+// 	this->mButton_again.move(100, 400);
+// 	this->mButton_again.setIconSize(QSize(300, 41));
+// 	this->mScene_Pause.addWidget(&this->mButton_again);
 
-	this->mButton_gameover.setStyleSheet(R"(
-    QToolButton {
-        border: none;               /* 去除边框 */
-        background: transparent;    /* 透明背景 */
-        padding: 0px;               /* 去除内边距 */
-    }
-	)");
-	this->mButton_gameover.setIcon(QIcon(":/img/src/images/gameover.png"));
-	this->mButton_gameover.setIconSize(QSize(300, 41));
-	this->mButton_gameover.resize(300, 41);
-	this->mButton_gameover.move(100, 500);
-	this->mScene_Pause.addWidget(&this->mButton_gameover);
+// 	this->mButton_gameover.setStyleSheet(R"(
+//     QToolButton {
+//         border: none;               /* 去除边框 */
+//         background: transparent;    /* 透明背景 */
+//         padding: 0px;               /* 去除内边距 */
+//     }
+// 	)");
+// 	this->mButton_gameover.setIcon(QIcon(":/img/src/images/gameover.png"));
+// 	this->mButton_gameover.setIconSize(QSize(300, 41));
+// 	this->mButton_gameover.resize(300, 41);
+// 	this->mButton_gameover.move(100, 500);
+// 	this->mScene_Pause.addWidget(&this->mButton_gameover);
 
-	QFont font;
-	font.setFamily("Comic Sans MS"); // 黑体，适配手绘风格的硬朗感
-	font.setPointSize(14);
-	this->highest_score.setFont(font);
-	this->highest_score.move(100, 300);
-	this->highest_score.setStyleSheet("background-color: transparent;");
-	this->highest_score.setText("最高分:" + QString::number(this->score));
-	this->mScene_Pause.addWidget(&this->highest_score);
-}
+// 	QFont font;
+// 	font.setFamily("Comic Sans MS"); // 黑体，适配手绘风格的硬朗感
+// 	font.setPointSize(14);
+// 	this->highest_score.setFont(font);
+// 	this->highest_score.move(100, 300);
+// 	this->highest_score.setStyleSheet("background-color: transparent;");
+// 	this->highest_score.setText("最高分:" + QString::number(this->score));
+// 	this->mScene_Pause.addWidget(&this->highest_score);
+// }
 void GameManager::timer_Start()
 {
-    this->timerRollBG->start(GameInitialConfig::MapRollBGTime);
-    this->timerBulletMove->start(GameInitialConfig::BulletMoveTime);
-    this->timerGenerateEnemy->start(GameInitialConfig::MapGenerateEnemyTime);
-    this->timerShootBullet->start(1000/this->gameItemPool.mPlane.speedShootBullet);
-    this->timerPlaneMove->start(30);
+	this->timerRollBG->start(GameInitialConfig::MapRollBGTime);
+	this->timerBulletMove->start(GameInitialConfig::BulletMoveTime);
+	this->timerGenerateEnemy->start(GameInitialConfig::MapGenerateEnemyTime);
+	this->timerShootBullet->start(1000 / this->gameItemPool.mPlane.speedShootBullet);
+	this->timerPlaneMove->start(30);
 }
 void GameManager::timer_Pause()
 {
-    this->timerRollBG->stop();
-    this->timerBulletMove->stop();
-    this->timerGenerateEnemy->stop();
-    this->timerShootBullet->stop();
-    this->timerPlaneMove->stop();
+	this->timerRollBG->stop();
+	this->timerBulletMove->stop();
+	this->timerGenerateEnemy->stop();
+	this->timerShootBullet->stop();
+	this->timerPlaneMove->stop();
 }
 GameManager::~GameManager()
 {
-    delete ui;
+	delete ui;
 }
 
-void GameManager::keyPressEvent(QKeyEvent*event)
+void GameManager::keyPressEvent(QKeyEvent *event)
 {
-    this->gameItemPool.mPlane.setPixmap(QPixmap(":/img/src/images/me1.png"));
-    switch (event->key()) {
-    case Qt::Key_A:
-    case Qt::Key_S:
-    case Qt::Key_D:
-    case Qt::Key_W:
+	this->gameItemPool.mPlane.setPixmap(QPixmap(":/img/src/images/me1.png"));
+	switch (event->key())
+	{
+	case Qt::Key_A:
+	case Qt::Key_S:
+	case Qt::Key_D:
+	case Qt::Key_W:
 
-        this->mKeySet.insert(event->key());
-        break;
-    default:
-        break;
-    }
+		this->mKeySet.insert(event->key());
+		break;
+	default:
+		break;
+	}
 }
 
-void GameManager:: keyReleaseEvent(QKeyEvent*event)
+void GameManager::keyReleaseEvent(QKeyEvent *event)
 {
-
-    if(this->mKeySet.contains(event->key()))
-    {
-        this->mKeySet.remove(event->key());
-    }
+	if (this->mKeySet.contains(event->key()))
+	{
+		this->mKeySet.remove(event->key());
+	}
 }
 
 void GameManager::BGroll()//背景滚动槽函数
