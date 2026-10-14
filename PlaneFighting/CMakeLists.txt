@@ -20,7 +20,7 @@ set(PROJECT_SOURCES
         main.cpp
         GameManager.cpp
         GameManager.h
-        widget.ui
+
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -39,6 +39,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         scenefight.h scenefight.cpp
         scenestart.h scenestart.cpp
         scenepause.h scenepause.cpp
+        mediaplayermanager.h mediaplayermanager.cpp
 
     )
 # Define target properties for Android with Qt 6 as:
